@@ -23,7 +23,7 @@ class AVLTree{
     int getBalance(AVLNode* node);
     AVLNode* rotateRight(AVLNode* y);
     AVLNode* rotateLeft(AVLNode* x);
-    AVLNode* insert(AVLNode* node, Product p);
+    AVLNode* insertN(AVLNode* node, Product p);
     AVLNode* deleteN(AVLNode* node, int id);
     AVLNode* minNode(AVLNode* node);
     void inorder(AVLNode* node);

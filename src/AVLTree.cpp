@@ -43,8 +43,52 @@ AVLNode* AVLTree::rotateLeft(AVLNode* x){
 
 }
 
+AVLNode* AVLTree::insertN(AVLNode* node, Product p) {
+    if (node == nullptr)
+        return new AVLNode(p);
+
+    // BST insert
+    if (p.id < node->data.id)
+        node->left = insertN(node->left, p);
+    else if (p.id > node->data.id)
+        node->right = insertN(node->right, p);
+    else
+        return node; // No duplicates
+
+    // Update height
+    node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+
+    // Get balance factor
+    int balance = getBalance(node);
+
+    // ---------------- Rotations based on imbalance ----------------
+
+    // Left Left Case
+    if (balance > 1 && p.id < node->left->data.id)
+        return rotateRight(node);
+
+    // Right Right Case
+    if (balance < -1 && p.id > node->right->data.id)
+        return rotateLeft(node);
+
+    // Left Right Case
+    if (balance > 1 && p.id > node->left->data.id) {
+        node->left = rotateLeft(node->left);
+        return rotateRight(node);
+    }
+
+    // Right Left Case
+    if (balance < -1 && p.id < node->right->data.id) {
+        node->right = rotateRight(node->right);
+        return rotateLeft(node);
+    }
+
+    return node;
+}
+
+
 void AVLTree::insert(Product p) {
-    root = insert(root, p);
+    root = insertN(root, p);
 }
 
 //minimum value of a node
