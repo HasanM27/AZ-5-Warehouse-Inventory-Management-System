@@ -14,7 +14,7 @@
         delete[] minimum;
     }
     
-    // to get parent
+    // to get parent of the element
     int MinHeap::parent(int i) {return (i - 1) / 2;}
 
     // to get left child 
