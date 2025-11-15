@@ -61,7 +61,6 @@ AVLNode* AVLTree::insertN(AVLNode* node, Product p) {
     // Get balance factor
     int balance = getBalance(node);
 
-    // ---------------- Rotations based on imbalance ----------------
 
     // Left Left Case
     if (balance > 1 && p.id < node->left->data.id)
