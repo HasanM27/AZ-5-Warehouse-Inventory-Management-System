@@ -1,142 +1,116 @@
 #include "../include/WarehouseSystem.h"
 
 // Constructor
-WarehouseSystem::WarehouseSystem(int hashMapSize, int minHeapSize, int maxHeapSize)
-    : productTable(hashMapSize), lowStockHeap(minHeapSize), bestSalesHeap(maxHeapSize)
-{
-    nextOrderId = 1; // initialize order IDs
-}
+WarehouseSystem::WarehouseSystem(int minHeapCap, int maxHeapCap, int hashMapCap)
+    : lowStockHeap(minHeapCap), bestSalesHeap(maxHeapCap), productsMap(hashMapCap) {}
 
-// ------------------------
-// Private Helper Functions
-// ------------------------
-
-// Sync heaps after product update (quantity or salesCount changed)
-void WarehouseSystem::syncHeaps(Product &p) {
-    lowStockHeap.IncreaseSales(p.id, p.salesCount);   // Update low stock heap (use salesCount for example)
-    bestSalesHeap.increaseSales(p.id, p.salesCount);  // Update best-selling heap
-}
-
-// Sync product in hash map and heaps
-void WarehouseSystem::syncProduct(Product &p) {
-    productTable.insert(p);      // insert/update in hash map
-    syncHeaps(p);                // update heaps
-}
-
-// ------------------------
-// Product Management
-// ------------------------
-
+// Add a new product
 void WarehouseSystem::addProduct(Product p) {
-    if (productTable.contains(p.id)) {
-        cout << "Product with ID " << p.id << " already exists!\n";
-        return;
-    }
-    productTable.insert(p);
+    productsMap.insert(p);
     lowStockHeap.insert(p);
     bestSalesHeap.insert(p);
-    cout << "Product " << p.name << " added successfully.\n";
 }
 
+// Remove product
 void WarehouseSystem::removeProduct(int productId) {
-    Product* p = productTable.get(productId);
-    if (!p) {
-        cout << "Product not found!\n";
-        return;
+    Product* p = productsMap.get(productId);
+    if (p != nullptr) {
+        productsMap.remove(productId);
+        cout << "Product " << p->name << " removed from warehouse." << endl;
+    } else {
+        cout << "Product not found!" << endl;
     }
-
-    productTable.remove(productId);
-    // For heaps, you could implement remove or just ignore (simpler: re-build heap when needed)
-    cout << "Product " << p->name << " removed successfully.\n";
 }
 
+// Update stock quantity
 void WarehouseSystem::updateStock(int productId, int qty) {
-    Product* p = productTable.get(productId);
-    if (!p) {
-        cout << "Product not found!\n";
-        return;
+    Product* p = productsMap.get(productId);
+    if (p != nullptr) {
+        p->quantity = qty;
+        lowStockHeap.IncreaseSales(productId, p->salesCount); // Rebalance heaps
+        bestSalesHeap.increaseSales(productId, p->salesCount);
     }
-
-    p->quantity += qty;
-    syncProduct(*p);
-    cout << "Stock for " << p->name << " updated to " << p->quantity << ".\n";
 }
 
+// Search for a product
 Product* WarehouseSystem::searchProduct(int productId) {
-    Product* p = productTable.get(productId);
-    if (!p) {
-        cout << "Product not found!\n";
-    }
-    return p;
+    return productsMap.get(productId);
 }
 
-// ------------------------
-// Order Management
-// ------------------------
-
-void WarehouseSystem::placeOrder(int productId, int quantity, bool urgent) {
-    Product* p = productTable.get(productId);
-    if (!p) {
-        cout << "Product not found!\n";
-        return;
-    }
-
-    if (p->quantity < quantity) {
-        cout << "Insufficient stock for product " << p->name << ".\n";
-        return;
-    }
-
-    Order o(nextOrderId++, productId, quantity, urgent);
-    orderQueue.enqueue(o);
-    cout << "Order placed for " << quantity << " units of " << p->name << ".\n";
+// Display all products
+void WarehouseSystem::displayAllProducts() {
+    productsMap.display();
 }
 
+// Place order
+void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
+    Product* p = productsMap.get(productId);
+    if (p == nullptr) {
+        cout << "Product not found!" << endl;
+        return;
+    }
+    if (p->quantity < qty) {
+        cout << "Insufficient stock!" << endl;
+        return;
+    }
+    if (urgent) {
+        // For urgent, just push to front (simulate priority)
+        queue<Order> tmp;
+        tmp.push(Order(productId, qty, urgent));
+        while (!orderQueue.empty()) {
+            tmp.push(orderQueue.front());
+            orderQueue.pop();
+        }
+        orderQueue = tmp;
+    } else {
+        orderQueue.push(Order(productId, qty, urgent));
+    }
+    p->salesCount += qty;
+    bestSalesHeap.increaseSales(productId, p->salesCount);
+    lowStockHeap.IncreaseSales(productId, p->salesCount);
+}
+
+// Process the next order
 void WarehouseSystem::processNextOrder() {
-    if (orderQueue.isEmpty()) {
-        cout << "No orders to process.\n";
+    if (orderQueue.empty()) {
+        cout << "No orders to process." << endl;
         return;
     }
-
-    Order o = orderQueue.dequeue();
-    Product* p = productTable.get(o.productId);
-    if (!p) {
-        cout << "Product in order not found!\n";
-        return;
+    Order o = orderQueue.front();
+    orderQueue.pop();
+    Product* p = productsMap.get(o.productId);
+    if (p != nullptr) {
+        p->quantity -= o.quantity;
+        cout << "Processed order: " << p->name << ", Qty: " << o.quantity << endl;
     }
-
-    if (p->quantity < o.quantity) {
-        cout << "Not enough stock to process order for " << p->name << ".\n";
-        return;
-    }
-
-    p->quantity -= o.quantity;
-    p->salesCount += o.quantity;  // update sales
-    syncProduct(*p);
-
-    cout << "Processed order #" << o.orderId
-         << " for " << o.quantity << " units of " << p->name << ".\n";
 }
 
-// ------------------------
-// Debug / Reporting
-// ------------------------
+// Print all orders in queue
+void WarehouseSystem::printOrders() {
+    if (orderQueue.empty()) {
+        cout << "No pending orders." << endl;
+        return;
+    }
+    queue<Order> tmp = orderQueue;
+    cout << "Pending orders:" << endl;
+    while (!tmp.empty()) {
+        Order o = tmp.front();
+        tmp.pop();
+        cout << "Product ID: " << o.productId << ", Qty: " << o.quantity 
+             << ", Urgent: " << (o.urgent ? "Yes" : "No") << endl;
+    }
+}
 
+// Print heaps
 void WarehouseSystem::printLowStockHeap() {
-    cout << "Low Stock Heap:\n";
+    cout << "Low stock products: ";
     lowStockHeap.printHeap();
 }
 
 void WarehouseSystem::printBestSalesHeap() {
-    cout << "Best Selling Heap:\n";
+    cout << "Best selling products: ";
     bestSalesHeap.printHeap();
 }
 
-void WarehouseSystem::printOrders() {
-    cout << "Orders in queue:\n";
-    orderQueue.printQueue();
-}
-
-void WarehouseSystem::displayAllProducts() {
-    cout << "All products in warehouse:\n";
-    productTable.display();
-}
+// Destructor
+WarehouseSystem::~WarehouseSystem() {}

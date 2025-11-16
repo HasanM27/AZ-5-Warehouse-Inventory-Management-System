@@ -1,45 +1,52 @@
-#ifndef WAREHOUSE_SYSTEM_H
-#define WAREHOUSE_SYSTEM_H
+#ifndef WAREHOUSESYSTEM_H
+#define WAREHOUSESYSTEM_H
 
 #include "Product.h"
-#include "HashMap.h"
 #include "MinHeap.h"
 #include "MaxHeap.h"
-#include "OrderQueue.h"
+#include "HashMap.h"
+#include <queue>
+#include <vector>
 #include <iostream>
 using namespace std;
 
+// Struct for order
+struct Order {
+    int productId;
+    int quantity;
+    bool urgent;
+
+    Order(int pid, int qty, bool urg) : productId(pid), quantity(qty), urgent(urg) {}
+};
+
 class WarehouseSystem {
 private:
-    HashMap productTable;     // Fast lookup
-    MinHeap lowStockHeap;     // Track low-stock products
-    MaxHeap bestSalesHeap;    // Track top-selling products
-    OrderQueue orderQueue;    // Order processing
+    MinHeap lowStockHeap;
+    MaxHeap bestSalesHeap;
+    HashMap productsMap;
 
-    int nextOrderId;          // Auto-increment order IDs
-
-    // Helper functions to sync heaps and hash map
-    void syncHeaps(Product &p);
-    void syncProduct(Product &p);
+    queue<Order> orderQueue;
 
 public:
-    WarehouseSystem(int hashMapSize, int minHeapSize, int maxHeapSize);
+    WarehouseSystem(int minHeapCap, int maxHeapCap, int hashMapCap);
 
     // Product management
     void addProduct(Product p);
     void removeProduct(int productId);
     void updateStock(int productId, int qty);
     Product* searchProduct(int productId);
+    void displayAllProducts();
 
-    // Order management
-    void placeOrder(int productId, int quantity, bool urgent = false);
+    // Orders
+    void placeOrder(int productId, int qty, bool urgent = false);
     void processNextOrder();
+    void printOrders();
 
-    // Debug / reporting
+    // Heap display
     void printLowStockHeap();
     void printBestSalesHeap();
-    void printOrders();
-    void displayAllProducts();
+
+    ~WarehouseSystem();
 };
 
 #endif
