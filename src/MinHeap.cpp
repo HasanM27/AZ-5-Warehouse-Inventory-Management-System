@@ -1,9 +1,10 @@
 #include "../include/MinHeap.h"
 
 // constructor
+MinHeap::MinHeap(int cap) : minimum(new Product[cap]), min_capacity(cap), min_heap_size(0) {}
 
-    // swap function
-    void MinHeap::swap(Product *x, Product*y)
+// swap function
+void MinHeap::swap(Product *x, Product*y)
     {
         Product temp = *x;
         *x = *y;

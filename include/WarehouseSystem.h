@@ -5,19 +5,11 @@
 #include "MinHeap.h"
 #include "MaxHeap.h"
 #include "HashMap.h"
+#include "Order.h"
 #include <queue>
 #include <vector>
 #include <iostream>
 using namespace std;
-
-// Struct for order
-struct Order {
-    int productId;
-    int quantity;
-    bool urgent;
-
-    Order(int pid, int qty, bool urg) : productId(pid), quantity(qty), urgent(urg) {}
-};
 
 class WarehouseSystem {
 private:
@@ -26,6 +18,7 @@ private:
     HashMap productsMap;
 
     queue<Order> orderQueue;
+    int nextOrderId;
 
 public:
     WarehouseSystem(int minHeapCap, int maxHeapCap, int hashMapCap);

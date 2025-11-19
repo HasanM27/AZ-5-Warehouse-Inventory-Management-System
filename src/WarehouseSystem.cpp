@@ -2,7 +2,10 @@
 
 // Constructor
 WarehouseSystem::WarehouseSystem(int minHeapCap, int maxHeapCap, int hashMapCap)
-    : lowStockHeap(minHeapCap), bestSalesHeap(maxHeapCap), productsMap(hashMapCap) {}
+    : lowStockHeap(minHeapCap),
+      bestSalesHeap(maxHeapCap),
+      productsMap(hashMapCap),
+      nextOrderId(1) {}
 
 // Add a new product
 void WarehouseSystem::addProduct(Product p) {
@@ -53,17 +56,18 @@ void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
         cout << "Insufficient stock!" << endl;
         return;
     }
+    Order newOrder(nextOrderId++, productId, qty, urgent);
     if (urgent) {
         // For urgent, just push to front (simulate priority)
         queue<Order> tmp;
-        tmp.push(Order(productId, qty, urgent));
+        tmp.push(newOrder);
         while (!orderQueue.empty()) {
             tmp.push(orderQueue.front());
             orderQueue.pop();
         }
         orderQueue = tmp;
     } else {
-        orderQueue.push(Order(productId, qty, urgent));
+        orderQueue.push(newOrder);
     }
     p->salesCount += qty;
     bestSalesHeap.increaseSales(productId, p->salesCount);
@@ -81,7 +85,8 @@ void WarehouseSystem::processNextOrder() {
     Product* p = productsMap.get(o.productId);
     if (p != nullptr) {
         p->quantity -= o.quantity;
-        cout << "Processed order: " << p->name << ", Qty: " << o.quantity << endl;
+        cout << "Processed order #" << o.orderId << ": " << p->name
+             << ", Qty: " << o.quantity << endl;
     }
 }
 
@@ -96,7 +101,8 @@ void WarehouseSystem::printOrders() {
     while (!tmp.empty()) {
         Order o = tmp.front();
         tmp.pop();
-        cout << "Product ID: " << o.productId << ", Qty: " << o.quantity 
+        cout << "Order #" << o.orderId << " | Product ID: " << o.productId
+             << " | Qty: " << o.quantity 
              << ", Urgent: " << (o.urgent ? "Yes" : "No") << endl;
     }
 }

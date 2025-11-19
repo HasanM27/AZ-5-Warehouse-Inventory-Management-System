@@ -35,8 +35,7 @@
             return;
         }
 
-        max_heap_size;
-        int i = max_heap_size - 1;
+        int i = max_heap_size++;
         maximum[i] = p;
 
         while (i != 0 && maximum[parent(i)].salesCount < maximum[i].salesCount) {
@@ -71,4 +70,11 @@
             swap(&maximum[i], &maximum[parent(i)]);
             i = parent(i);
         }
+    }
+
+    void MaxHeap::printHeap() {
+        for (int i = 0; i < max_heap_size; ++i) {
+            cout << maximum[i].name << " (" << maximum[i].quantity << ")  ";
+        }
+        cout << endl;
     }
