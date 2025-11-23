@@ -5,6 +5,7 @@
 #include "MinHeap.h"
 #include "MaxHeap.h"
 #include "HashMap.h"
+#include "AVLTree.h"
 #include "Order.h"
 #include <queue>
 #include <vector>
@@ -13,9 +14,10 @@ using namespace std;
 
 class WarehouseSystem {
 private:
-    MinHeap lowStockHeap;
-    MaxHeap bestSalesHeap;
-    HashMap productsMap;
+    AVLTree productsTree;      // For O(log n) search by ID
+    HashMap productsMap;       // For O(1) average retrieval by ID
+    MinHeap lowSellingHeap;    // For O(1) retrieval of lowest selling product (by salesCount)
+    MaxHeap bestSellingHeap;   // For O(1) retrieval of best selling product (by salesCount)
 
     queue<Order> orderQueue;
     int nextOrderId;
@@ -36,8 +38,8 @@ public:
     void printOrders();
 
     // Heap display
-    void printLowStockHeap();
-    void printBestSalesHeap();
+    void printLowSellingHeap();
+    void printBestSellingHeap();
 
     ~WarehouseSystem();
 };
