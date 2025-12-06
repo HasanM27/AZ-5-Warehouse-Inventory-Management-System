@@ -147,8 +147,6 @@ void searchProductMenu(WarehouseSystem &warehouse)
 void placeOrderMenu(WarehouseSystem &warehouse)
 {
     int id, qty;
-    char urgent;
-    bool isUrgent = false;
 
     cout << "\n--- Place Order ---" << endl;
     cout << "Enter Product ID: ";
@@ -171,14 +169,7 @@ void placeOrderMenu(WarehouseSystem &warehouse)
         return;
     }
 
-    cout << "Is this an urgent order? (y/n): ";
-    cin >> urgent;
-    if (urgent == 'y' || urgent == 'Y')
-    {
-        isUrgent = true;
-    }
-
-    warehouse.placeOrder(id, qty, isUrgent);
+    warehouse.placeOrder(id, qty);
 }
 
 int main()

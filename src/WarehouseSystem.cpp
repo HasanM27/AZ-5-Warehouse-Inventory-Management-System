@@ -86,7 +86,7 @@ int WarehouseSystem::getPendingQuantity(int productId) {
 }
 
 // Place order (adds to queue, doesn't process yet)
-void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
+void WarehouseSystem::placeOrder(int productId, int qty) {
     Product* p = productsMap.get(productId);
     if (p == nullptr) {
         cout << "Product not found!" << endl;
@@ -107,19 +107,9 @@ void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
         return;
     }
     
-    Order newOrder(nextOrderId++, productId, qty, urgent);
-    if (urgent) {
-        // For urgent orders, push to front (simulate priority queue)
-        queue<Order> tmp;
-        tmp.push(newOrder);
-        while (!orderQueue.empty()) {
-            tmp.push(orderQueue.front());
-            orderQueue.pop();
-        }
-        orderQueue = tmp;
-    } else {
-        orderQueue.push(newOrder);
-    }
+    // Create order and add to back of queue (FIFO)
+    Order newOrder(nextOrderId++, productId, qty, false);
+    orderQueue.push(newOrder);
     
     cout << "Order #" << newOrder.orderId << " placed for Product ID " 
          << productId << " (Qty: " << qty << ")" << endl;
@@ -195,8 +185,7 @@ void WarehouseSystem::printOrders() {
         Order o = tmp.front();
         tmp.pop();
         cout << "Order #" << o.orderId << " | Product ID: " << o.productId
-             << " | Qty: " << o.quantity 
-             << ", Urgent: " << (o.urgent ? "Yes" : "No") << endl;
+             << " | Qty: " << o.quantity << endl;
     }
 }
 

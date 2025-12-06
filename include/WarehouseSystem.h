@@ -36,7 +36,7 @@ public:
     void displayAllProducts();
 
     // Orders
-    void placeOrder(int productId, int qty, bool urgent = false);
+    void placeOrder(int productId, int qty);
     void processNextOrder();
     void printOrders();
 
