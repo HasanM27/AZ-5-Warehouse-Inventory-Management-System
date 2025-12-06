@@ -1,6 +1,7 @@
 #include "../include/WarehouseSystem.h"
 #include <iostream>
 #include <iomanip>
+
 using namespace std;
 
 void displayMenu() {
