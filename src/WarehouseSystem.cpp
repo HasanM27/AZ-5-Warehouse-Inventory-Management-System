@@ -70,6 +70,21 @@ void WarehouseSystem::displayAllProducts() {
     productsMap.display();
 }
 
+// Helper function to calculate total pending quantity for a product in the queue
+int WarehouseSystem::getPendingQuantity(int productId) {
+    int totalPending = 0;
+    queue<Order> tempQueue = orderQueue; // Copy queue to avoid modifying original
+    
+    while (!tempQueue.empty()) {
+        Order o = tempQueue.front();
+        tempQueue.pop();
+        if (o.productId == productId) {
+            totalPending += o.quantity;
+        }
+    }
+    return totalPending;
+}
+
 // Place order (adds to queue, doesn't process yet)
 void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
     Product* p = productsMap.get(productId);
@@ -77,8 +92,17 @@ void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
         cout << "Product not found!" << endl;
         return;
     }
-    if (p->quantity < qty) {
-        cout << "Insufficient stock! Available: " << p->quantity 
+    
+    // Calculate total pending quantity for this product in the queue
+    int pendingQty = getPendingQuantity(productId);
+    
+    // Check if we have enough stock considering pending orders
+    int availableStock = p->quantity - pendingQty;
+    
+    if (availableStock < qty) {
+        cout << "Insufficient stock! Current: " << p->quantity 
+             << ", Pending orders: " << pendingQty
+             << ", Available: " << availableStock
              << ", Requested: " << qty << endl;
         return;
     }
@@ -99,6 +123,7 @@ void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
     
     cout << "Order #" << newOrder.orderId << " placed for Product ID " 
          << productId << " (Qty: " << qty << ")" << endl;
+    cout << "  Available stock after this order: " << (availableStock - qty) << endl;
 }
 
 // Process the next order: reduces quantity, updates salesCount, updates heaps
@@ -115,6 +140,13 @@ void WarehouseSystem::processNextOrder() {
     Product* p = productsMap.get(o.productId);
     if (p == nullptr) {
         cout << "Order #" << o.orderId << " failed: Product not found!" << endl;
+        return;
+    }
+    
+    // Safety check: Ensure we have enough stock (in case stock was updated externally)
+    if (p->quantity < o.quantity) {
+        cout << "Order #" << o.orderId << " failed: Insufficient stock!" << endl;
+        cout << "  Available: " << p->quantity << ", Required: " << o.quantity << endl;
         return;
     }
     
