@@ -65,17 +65,49 @@ void MinHeap::swap(Product *x, Product*y)
 
         if (j==-1){ cout<< "\nNo Product found with that ID"; return;}
 
+        int oldSalesCount = minimum[j].salesCount;
         minimum[j].salesCount = newSalesCount;
 
-        while (j != 0 && minimum[parent(j)].salesCount > minimum[j].salesCount) {
-            swap(&minimum[j], &minimum[parent(j)]);
-            j = parent(j);
+        // If salesCount increased, we might need to bubble DOWN (larger values go down in min heap)
+        // If salesCount decreased, we need to bubble UP (smaller values go up in min heap)
+        if (newSalesCount > oldSalesCount) {
+            // Bubble DOWN: check if current node is larger than its children
+            while (true) {
+                int smallest = j;
+                int l = left(j);
+                int r = right(j);
+                
+                if (l < min_heap_size && minimum[l].salesCount < minimum[smallest].salesCount) {
+                    smallest = l;
+                }
+                if (r < min_heap_size && minimum[r].salesCount < minimum[smallest].salesCount) {
+                    smallest = r;
+                }
+                
+                if (smallest != j) {
+                    swap(&minimum[j], &minimum[smallest]);
+                    j = smallest;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            // Bubble UP: check if current node is smaller than its parent
+            while (j != 0 && minimum[parent(j)].salesCount > minimum[j].salesCount) {
+                swap(&minimum[j], &minimum[parent(j)]);
+                j = parent(j);
+            }
         }
-        
     }
 
     void MinHeap::printHeap() {
+    if (min_heap_size == 0) {
+        cout << "Heap is empty." << endl;
+        return;
+    }
     for (int i = 0; i < min_heap_size; i++)
-        cout << minimum[i].name << " (" << minimum[i].quantity << ")  ";
+        cout << minimum[i].name << " (sales: " << minimum[i].salesCount << ")  ";
     cout << endl;
+    cout << "Root (lowest selling): " << minimum[0].name 
+         << " with salesCount = " << minimum[0].salesCount << endl;
 }

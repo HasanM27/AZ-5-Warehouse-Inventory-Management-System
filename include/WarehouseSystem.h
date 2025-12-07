@@ -22,6 +22,9 @@ private:
     queue<Order> orderQueue;
     int nextOrderId;
 
+    // Helper function to calculate total pending quantity for a product in the queue
+    int getPendingQuantity(int productId);
+
 public:
     WarehouseSystem(int minHeapCap, int maxHeapCap, int hashMapCap);
 
@@ -33,7 +36,7 @@ public:
     void displayAllProducts();
 
     // Orders
-    void placeOrder(int productId, int qty, bool urgent = false);
+    void placeOrder(int productId, int qty);
     void processNextOrder();
     void printOrders();
 

@@ -53,7 +53,7 @@
         return maximum[0];
     }
 
-    // increase the vlaue if the product already exists inside the heap
+    // increase the value if the product already exists inside the heap
     void MaxHeap::increaseSales(int productId, int newSalesCount) {
         int i = -1;
         for (int j = 0; j < max_heap_size; j++) {
@@ -64,17 +64,50 @@
         }
         if (i==-1){ cout<< "\nNo Product found with that ID"; return;}
 
+        int oldSalesCount = maximum[i].salesCount;
         maximum[i].salesCount = newSalesCount;
 
-        while (i != 0 && maximum[parent(i)].salesCount < maximum[i].salesCount) {
-            swap(&maximum[i], &maximum[parent(i)]);
-            i = parent(i);
+        // If salesCount increased, bubble UP (larger values go up in max heap)
+        // If salesCount decreased, bubble DOWN (smaller values go down in max heap)
+        if (newSalesCount > oldSalesCount) {
+            // Bubble UP: check if current node is larger than its parent
+            while (i != 0 && maximum[parent(i)].salesCount < maximum[i].salesCount) {
+                swap(&maximum[i], &maximum[parent(i)]);
+                i = parent(i);
+            }
+        } else {
+            // Bubble DOWN: check if current node is smaller than its children
+            while (true) {
+                int largest = i;
+                int l = left(i);
+                int r = right(i);
+                
+                if (l < max_heap_size && maximum[l].salesCount > maximum[largest].salesCount) {
+                    largest = l;
+                }
+                if (r < max_heap_size && maximum[r].salesCount > maximum[largest].salesCount) {
+                    largest = r;
+                }
+                
+                if (largest != i) {
+                    swap(&maximum[i], &maximum[largest]);
+                    i = largest;
+                } else {
+                    break;
+                }
+            }
         }
     }
 
     void MaxHeap::printHeap() {
+        if (max_heap_size == 0) {
+            cout << "Heap is empty." << endl;
+            return;
+        }
         for (int i = 0; i < max_heap_size; ++i) {
-            cout << maximum[i].name << " (" << maximum[i].quantity << ")  ";
+            cout << maximum[i].name << " (sales: " << maximum[i].salesCount << ")  ";
         }
         cout << endl;
+        cout << "Root (best selling): " << maximum[0].name 
+             << " with salesCount = " << maximum[0].salesCount << endl;
     }
