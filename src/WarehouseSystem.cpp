@@ -99,8 +99,8 @@ void WarehouseSystem::placeOrder(int productId, int qty) {
         return;
     }
     if (p->quantity < qty) {
-        cout << "Insufficient stock! Available: " << p->quantity 
-             << ", Requested: " << qty << endl;
+        cout << Theme::ERR << "Insufficient stock! Available: " << Theme::DATA << p->quantity 
+             << Theme::ERR << ", Requested: " << Theme::DATA << qty << RESET << endl;
         return;
     }
     
@@ -108,8 +108,9 @@ void WarehouseSystem::placeOrder(int productId, int qty) {
     Order newOrder(nextOrderId++, productId, qty, false);
     orderQueue.push(newOrder);
     
-    cout << "Order #" << newOrder.orderId << " placed for Product ID " 
-         << productId << " (Qty: " << qty << ")" << endl;
+    cout << Theme::SUCCESS << "Order #" << Theme::DATA << newOrder.orderId 
+         << Theme::SUCCESS << " placed for Product ID " << Theme::DATA << productId 
+         << Theme::SUCCESS << " (Qty: " << Theme::DATA << qty << Theme::SUCCESS << ")" << RESET << endl;
 }
 
 // Process the next order: reduces quantity, updates salesCount, updates heaps
@@ -132,8 +133,10 @@ void WarehouseSystem::processNextOrder() {
     
     // Safety check: Ensure we have enough stock (in case stock was updated externally)
     if (p->quantity < o.quantity) {
-        cout << "Order #" << o.orderId << " failed: Insufficient stock!" << endl;
-        cout << "  Available: " << p->quantity << ", Required: " << o.quantity << endl;
+        cout << Theme::ERR << "Order #" << Theme::DATA << o.orderId 
+             << Theme::ERR << " failed: Insufficient stock!" << RESET << endl;
+        cout << Theme::INFO << "  Available: " << Theme::DATA << p->quantity 
+             << Theme::INFO << ", Required: " << Theme::DATA << o.quantity << RESET << endl;
         return;
     }
     
@@ -182,9 +185,10 @@ void WarehouseSystem::printOrders() {
     while (!tmp.empty()) {
         Order o = tmp.front();
         tmp.pop();
-        cout << "Order #" << o.orderId << " | Product ID: " << o.productId
-             << " | Qty: " << o.quantity 
-             << ", Urgent: " << (o.urgent ? "Yes" : "No") << endl;
+        cout << Theme::INFO << "Order #" << Theme::DATA << o.orderId 
+             << Theme::INFO << " | Product ID: " << Theme::DATA << o.productId
+             << Theme::INFO << " | Qty: " << Theme::DATA << o.quantity 
+             << Theme::INFO << ", Urgent: " << Theme::DATA << (o.urgent ? "Yes" : "No") << RESET << endl;
     }
 }
 

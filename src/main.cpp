@@ -174,14 +174,7 @@ void placeOrderMenu(WarehouseSystem &warehouse)
         return;
     }
 
-    cout << "Is this an urgent order? (y/n): ";
-    cin >> urgent;
-    if (urgent == 'y' || urgent == 'Y')
-    {
-        isUrgent = true;
-    }
-
-    warehouse.placeOrder(id, qty, isUrgent);
+    warehouse.placeOrder(id, qty);
 }
 
 int main()
