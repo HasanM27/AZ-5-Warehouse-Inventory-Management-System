@@ -1,4 +1,7 @@
 #include "../include/WarehouseSystem.h"
+#include "../include/Colors.h"
+
+using namespace Colors;
 
 // Constructor
 WarehouseSystem::WarehouseSystem(int minHeapCap, int maxHeapCap, int hashMapCap)
@@ -19,7 +22,9 @@ void WarehouseSystem::addProduct(Product p) {
     lowSellingHeap.insert(p);
     bestSellingHeap.insert(p);
     
-    cout << "Product '" << p.name << "' (ID: " << p.id << ") added to warehouse." << endl;
+    cout << Theme::SUCCESS << "Product '" << Theme::DATA << p.name 
+         << Theme::SUCCESS << "' (ID: " << Theme::DATA << p.id 
+         << Theme::SUCCESS << ") added to warehouse." << RESET << endl;
 }
 
 // Remove product from AVLTree and HashMap (only when quantity reaches 0)
@@ -33,10 +38,11 @@ void WarehouseSystem::removeProduct(int productId) {
         // Remove from HashMap
         productsMap.remove(productId);
         
-        cout << "Product '" << p->name << "' (ID: " << productId 
-             << ") removed from warehouse (out of stock)." << endl;
+        cout << Theme::WARNING << "Product '" << Theme::DATA << p->name 
+             << Theme::WARNING << "' (ID: " << Theme::DATA << productId 
+             << Theme::WARNING << ") removed from warehouse (out of stock)." << RESET << endl;
     } else {
-        cout << "Product not found!" << endl;
+        cout << Theme::ERR << "Product not found!" << RESET << endl;
     }
 }
 
@@ -53,10 +59,10 @@ void WarehouseSystem::updateStock(int productId, int qty) {
             treeProduct->quantity = qty;
         }
         
-        cout << "Stock updated for Product ID " << productId 
-             << ": New quantity = " << qty << endl;
+        cout << Theme::SUCCESS << "Stock updated for Product ID " << Theme::DATA << productId 
+             << Theme::SUCCESS << ": New quantity = " << Theme::DATA << qty << RESET << endl;
     } else {
-        cout << "Product not found!" << endl;
+        cout << Theme::ERR << "Product not found!" << RESET << endl;
     }
 }
 
@@ -74,12 +80,12 @@ void WarehouseSystem::displayAllProducts() {
 void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
     Product* p = productsMap.get(productId);
     if (p == nullptr) {
-        cout << "Product not found!" << endl;
+        cout << Theme::ERR << "Product not found!" << RESET << endl;
         return;
     }
     if (p->quantity < qty) {
-        cout << "Insufficient stock! Available: " << p->quantity 
-             << ", Requested: " << qty << endl;
+        cout << Theme::ERR << "Insufficient stock! Available: " << Theme::DATA << p->quantity 
+             << Theme::ERR << ", Requested: " << Theme::DATA << qty << RESET << endl;
         return;
     }
     
@@ -97,15 +103,23 @@ void WarehouseSystem::placeOrder(int productId, int qty, bool urgent) {
         orderQueue.push(newOrder);
     }
     
-    cout << "Order #" << newOrder.orderId << " placed for Product ID " 
-         << productId << " (Qty: " << qty << ")" << endl;
+    if (urgent) {
+        cout << Theme::URGENT << "Order #" << Theme::DATA << newOrder.orderId 
+             << Theme::URGENT << " placed for Product ID " << Theme::DATA << productId 
+             << Theme::URGENT << " (Qty: " << Theme::DATA << qty 
+             << Theme::URGENT << ") [URGENT]" << RESET << endl;
+    } else {
+        cout << Theme::SUCCESS << "Order #" << Theme::DATA << newOrder.orderId 
+             << Theme::SUCCESS << " placed for Product ID " << Theme::DATA << productId 
+             << Theme::SUCCESS << " (Qty: " << Theme::DATA << qty << Theme::SUCCESS << ")" << RESET << endl;
+    }
 }
 
 // Process the next order: reduces quantity, updates salesCount, updates heaps
 // If quantity reaches 0, removes product from AVLTree and HashMap
 void WarehouseSystem::processNextOrder() {
     if (orderQueue.empty()) {
-        cout << "No orders to process." << endl;
+        cout << Theme::INFO << "No orders to process." << RESET << endl;
         return;
     }
     
@@ -114,7 +128,8 @@ void WarehouseSystem::processNextOrder() {
     
     Product* p = productsMap.get(o.productId);
     if (p == nullptr) {
-        cout << "Order #" << o.orderId << " failed: Product not found!" << endl;
+        cout << Theme::ERR << "Order #" << Theme::DATA << o.orderId 
+             << Theme::ERR << " failed: Product not found!" << RESET << endl;
         return;
     }
     
@@ -139,10 +154,11 @@ void WarehouseSystem::processNextOrder() {
     bestSellingHeap.increaseSales(o.productId, p->salesCount);
     lowSellingHeap.IncreaseSales(o.productId, p->salesCount);
     
-    cout << "Processed Order #" << o.orderId << ": " << p->name 
-         << " (Qty: " << o.quantity << ")" << endl;
-    cout << "  Remaining stock: " << p->quantity 
-         << ", Total sales: " << p->salesCount << endl;
+    cout << Theme::SUCCESS << "Processed Order #" << Theme::DATA << o.orderId 
+         << Theme::SUCCESS << ": " << Theme::DATA << p->name 
+         << Theme::SUCCESS << " (Qty: " << Theme::DATA << o.quantity << Theme::SUCCESS << ")" << RESET << endl;
+    cout << Theme::INFO << "  Remaining stock: " << Theme::DATA << p->quantity 
+         << Theme::INFO << ", Total sales: " << Theme::DATA << p->salesCount << RESET << endl;
     
     // If quantity reaches 0, remove product from AVLTree and HashMap
     // (Product stays in heaps as they track sales history)
@@ -154,28 +170,36 @@ void WarehouseSystem::processNextOrder() {
 // Print all orders in queue
 void WarehouseSystem::printOrders() {
     if (orderQueue.empty()) {
-        cout << "No pending orders." << endl;
+        cout << Theme::INFO << "No pending orders." << RESET << endl;
         return;
     }
     queue<Order> tmp = orderQueue;
-    cout << "Pending orders:" << endl;
+    cout << Theme::INFO << "Pending orders:" << RESET << endl;
     while (!tmp.empty()) {
         Order o = tmp.front();
         tmp.pop();
-        cout << "Order #" << o.orderId << " | Product ID: " << o.productId
-             << " | Qty: " << o.quantity 
-             << ", Urgent: " << (o.urgent ? "Yes" : "No") << endl;
+        if (o.urgent) {
+            cout << Theme::URGENT << "Order #" << Theme::DATA << o.orderId 
+                 << Theme::URGENT << " | Product ID: " << Theme::DATA << o.productId
+                 << Theme::URGENT << " | Qty: " << Theme::DATA << o.quantity 
+                 << Theme::URGENT << ", Urgent: " << Theme::DATA << "Yes" << RESET << endl;
+        } else {
+            cout << Theme::INFO << "Order #" << Theme::DATA << o.orderId 
+                 << Theme::INFO << " | Product ID: " << Theme::DATA << o.productId
+                 << Theme::INFO << " | Qty: " << Theme::DATA << o.quantity 
+                 << Theme::INFO << ", Urgent: " << Theme::DATA << "No" << RESET << endl;
+        }
     }
 }
 
 // Print heaps
 void WarehouseSystem::printLowSellingHeap() {
-    cout << "Lowest selling products (by sales count): ";
+    cout << Theme::INFO << "Lowest selling products (by sales count): " << RESET;
     lowSellingHeap.printHeap();
 }
 
 void WarehouseSystem::printBestSellingHeap() {
-    cout << "Best selling products (by sales count): ";
+    cout << Theme::SUCCESS << "Best selling products (by sales count): " << RESET;
     bestSellingHeap.printHeap();
 }
 

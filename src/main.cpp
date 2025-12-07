@@ -1,4 +1,5 @@
 #include "../include/WarehouseSystem.h"
+#include "../include/Colors.h"
 #include "../src/Product.cpp"
 #include "../src/MinHeap.cpp"
 #include "../src/MaxHeap.cpp"
@@ -11,23 +12,24 @@
 #include <iomanip>
 
 using namespace std;
+using namespace Colors;
 
 void displayMenu()
 {
-    cout << "\n========== WAREHOUSE MANAGEMENT SYSTEM ==========" << endl;
-    cout << "1.  Add Product" << endl;
-    cout << "2.  Remove Product" << endl;
-    cout << "3.  Update Stock" << endl;
-    cout << "4.  Search Product" << endl;
-    cout << "5.  Display All Products" << endl;
-    cout << "6.  Place Order" << endl;
-    cout << "7.  Process Next Order" << endl;
-    cout << "8.  View Pending Orders" << endl;
-    cout << "9.  View Lowest Selling Products" << endl;
-    cout << "10. View Best Selling Products" << endl;
-    cout << "11. Exit" << endl;
-    cout << "=================================================" << endl;
-    cout << "Enter your choice: ";
+    cout << "\n" << Theme::HEADER << "========== WAREHOUSE MANAGEMENT SYSTEM ==========" << RESET << endl;
+    cout << Theme::MENU_ITEM << "1.  Add Product" << RESET << endl;
+    cout << Theme::MENU_ITEM << "2.  Remove Product" << RESET << endl;
+    cout << Theme::MENU_ITEM << "3.  Update Stock" << RESET << endl;
+    cout << Theme::MENU_ITEM << "4.  Search Product" << RESET << endl;
+    cout << Theme::MENU_ITEM << "5.  Display All Products" << RESET << endl;
+    cout << Theme::MENU_ITEM << "6.  Place Order" << RESET << endl;
+    cout << Theme::MENU_ITEM << "7.  Process Next Order" << RESET << endl;
+    cout << Theme::MENU_ITEM << "8.  View Pending Orders" << RESET << endl;
+    cout << Theme::MENU_ITEM << "9.  View Lowest Selling Products" << RESET << endl;
+    cout << Theme::MENU_ITEM << "10. View Best Selling Products" << RESET << endl;
+    cout << Theme::MENU_ITEM << "11. Exit" << RESET << endl;
+    cout << Theme::SEPARATOR << "=================================================" << RESET << endl;
+    cout << Theme::PROMPT << "Enter your choice: " << RESET;
 }
 
 void addProductMenu(WarehouseSystem &warehouse)
@@ -36,31 +38,31 @@ void addProductMenu(WarehouseSystem &warehouse)
     string name, category;
     double price;
 
-    cout << "\n--- Add Product ---" << endl;
-    cout << "Enter Product ID: ";
+    cout << "\n" << Theme::HEADER << "--- Add Product ---" << RESET << endl;
+    cout << Theme::PROMPT << "Enter Product ID: " << RESET;
     cin >> id;
 
     // Check if product already exists
     if (warehouse.searchProduct(id) != nullptr)
     {
-        cout << "Product with ID " << id << " already exists!" << endl;
+        cout << Theme::ERR << "Product with ID " << id << " already exists!" << RESET << endl;
         return;
     }
 
     cin.ignore(); // Clear input buffer
-    cout << "Enter Product Name: ";
+    cout << Theme::PROMPT << "Enter Product Name: " << RESET;
     getline(cin, name);
 
-    cout << "Enter Category: ";
+    cout << Theme::PROMPT << "Enter Category: " << RESET;
     getline(cin, category);
 
-    cout << "Enter Quantity: ";
+    cout << Theme::PROMPT << "Enter Quantity: " << RESET;
     cin >> quantity;
 
-    cout << "Enter Price: $";
+    cout << Theme::PROMPT << "Enter Price: $" << RESET;
     cin >> price;
 
-    cout << "Enter Initial Sales Count (default 0): ";
+    cout << Theme::PROMPT << "Enter Initial Sales Count (default 0): " << RESET;
     cin >> salesCount;
 
     Product p(id, name, category, quantity, price, salesCount);
@@ -70,18 +72,19 @@ void addProductMenu(WarehouseSystem &warehouse)
 void removeProductMenu(WarehouseSystem &warehouse)
 {
     int id;
-    cout << "\n--- Remove Product ---" << endl;
-    cout << "Enter Product ID to remove: ";
+    cout << "\n" << Theme::HEADER << "--- Remove Product ---" << RESET << endl;
+    cout << Theme::PROMPT << "Enter Product ID to remove: " << RESET;
     cin >> id;
 
     Product *p = warehouse.searchProduct(id);
     if (p == nullptr)
     {
-        cout << "Product not found!" << endl;
+        cout << Theme::ERR << "Product not found!" << RESET << endl;
         return;
     }
 
-    cout << "Are you sure you want to remove '" << p->name << "' (ID: " << id << ")? (y/n): ";
+    cout << Theme::WARNING << "Are you sure you want to remove '" << Theme::DATA << p->name 
+         << Theme::WARNING << "' (ID: " << Theme::DATA << id << Theme::WARNING << ")? (y/n): " << RESET;
     char confirm;
     cin >> confirm;
     if (confirm == 'y' || confirm == 'Y')
@@ -90,31 +93,32 @@ void removeProductMenu(WarehouseSystem &warehouse)
     }
     else
     {
-        cout << "Removal cancelled." << endl;
+        cout << Theme::INFO << "Removal cancelled." << RESET << endl;
     }
 }
 
 void updateStockMenu(WarehouseSystem &warehouse)
 {
     int id, qty;
-    cout << "\n--- Update Stock ---" << endl;
-    cout << "Enter Product ID: ";
+    cout << "\n" << Theme::HEADER << "--- Update Stock ---" << RESET << endl;
+    cout << Theme::PROMPT << "Enter Product ID: " << RESET;
     cin >> id;
 
     Product *p = warehouse.searchProduct(id);
     if (p == nullptr)
     {
-        cout << "Product not found!" << endl;
+        cout << Theme::ERR << "Product not found!" << RESET << endl;
         return;
     }
 
-    cout << "Current stock for '" << p->name << "': " << p->quantity << endl;
-    cout << "Enter new quantity: ";
+    cout << Theme::INFO << "Current stock for '" << Theme::DATA << p->name 
+         << Theme::INFO << "': " << Theme::DATA << p->quantity << RESET << endl;
+    cout << Theme::PROMPT << "Enter new quantity: " << RESET;
     cin >> qty;
 
     if (qty < 0)
     {
-        cout << "Invalid quantity! Quantity cannot be negative." << endl;
+        cout << Theme::ERR << "Invalid quantity! Quantity cannot be negative." << RESET << endl;
         return;
     }
 
@@ -124,24 +128,24 @@ void updateStockMenu(WarehouseSystem &warehouse)
 void searchProductMenu(WarehouseSystem &warehouse)
 {
     int id;
-    cout << "\n--- Search Product ---" << endl;
-    cout << "Enter Product ID: ";
+    cout << "\n" << Theme::HEADER << "--- Search Product ---" << RESET << endl;
+    cout << Theme::PROMPT << "Enter Product ID: " << RESET;
     cin >> id;
 
     Product *p = warehouse.searchProduct(id);
     if (p == nullptr)
     {
-        cout << "Product not found!" << endl;
+        cout << Theme::ERR << "Product not found!" << RESET << endl;
         return;
     }
 
-    cout << "\n--- Product Details ---" << endl;
-    cout << "ID: " << p->id << endl;
-    cout << "Name: " << p->name << endl;
-    cout << "Category: " << p->category << endl;
-    cout << "Quantity: " << p->quantity << endl;
-    cout << fixed << setprecision(2) << "Price: $" << p->price << endl;
-    cout << "Total Sales: " << p->salesCount << endl;
+    cout << "\n" << Theme::HEADER << "--- Product Details ---" << RESET << endl;
+    cout << Theme::INFO << "ID: " << Theme::DATA << p->id << RESET << endl;
+    cout << Theme::INFO << "Name: " << Theme::DATA << p->name << RESET << endl;
+    cout << Theme::INFO << "Category: " << Theme::DATA << p->category << RESET << endl;
+    cout << Theme::INFO << "Quantity: " << Theme::DATA << p->quantity << RESET << endl;
+    cout << fixed << setprecision(2) << Theme::INFO << "Price: $" << Theme::DATA << p->price << RESET << endl;
+    cout << Theme::INFO << "Total Sales: " << Theme::DATA << p->salesCount << RESET << endl;
 }
 
 void placeOrderMenu(WarehouseSystem &warehouse)
@@ -150,28 +154,29 @@ void placeOrderMenu(WarehouseSystem &warehouse)
     char urgent;
     bool isUrgent = false;
 
-    cout << "\n--- Place Order ---" << endl;
-    cout << "Enter Product ID: ";
+    cout << "\n" << Theme::HEADER << "--- Place Order ---" << RESET << endl;
+    cout << Theme::PROMPT << "Enter Product ID: " << RESET;
     cin >> id;
 
     Product *p = warehouse.searchProduct(id);
     if (p == nullptr)
     {
-        cout << "Product not found!" << endl;
+        cout << Theme::ERR << "Product not found!" << RESET << endl;
         return;
     }
 
-    cout << "Product: " << p->name << " | Available: " << p->quantity << endl;
-    cout << "Enter Quantity: ";
+    cout << Theme::INFO << "Product: " << Theme::DATA << p->name 
+         << Theme::INFO << " | Available: " << Theme::DATA << p->quantity << RESET << endl;
+    cout << Theme::PROMPT << "Enter Quantity: " << RESET;
     cin >> qty;
 
     if (qty <= 0)
     {
-        cout << "Invalid quantity!" << endl;
+        cout << Theme::ERR << "Invalid quantity!" << RESET << endl;
         return;
     }
 
-    cout << "Is this an urgent order? (y/n): ";
+    cout << Theme::PROMPT << "Is this an urgent order? (y/n): " << RESET;
     cin >> urgent;
     if (urgent == 'y' || urgent == 'Y')
     {
@@ -183,6 +188,9 @@ void placeOrderMenu(WarehouseSystem &warehouse)
 
 int main()
 {
+    // Enable ANSI colors on Windows
+    enableColors();
+    
     // Initialize warehouse system with default capacities
     // Note: HashMap will automatically resize when needed (load factor > 0.75)
     // Heaps have fixed capacity, so we set a reasonable default
@@ -190,15 +198,18 @@ int main()
     const int DEFAULT_MAX_HEAP_CAP = 1000;  // For best selling products
     const int DEFAULT_HASHMAP_CAP = 16;      // Will auto-resize dynamically
 
-    cout << "========== WAREHOUSE MANAGEMENT SYSTEM ==========" << endl;
-    cout << "Initializing system with default capacities..." << endl;
-    cout << "  MinHeap: " << DEFAULT_MIN_HEAP_CAP << " (lowest selling products)" << endl;
-    cout << "  MaxHeap: " << DEFAULT_MAX_HEAP_CAP << " (best selling products)" << endl;
-    cout << "  HashMap: " << DEFAULT_HASHMAP_CAP << " (auto-resizes dynamically)" << endl;
+    cout << Theme::HEADER << "========== WAREHOUSE MANAGEMENT SYSTEM ==========" << RESET << endl;
+    cout << Theme::INFO << "Initializing system with default capacities..." << RESET << endl;
+    cout << Theme::INFO << "  MinHeap: " << Theme::DATA << DEFAULT_MIN_HEAP_CAP 
+         << Theme::INFO << " (lowest selling products)" << RESET << endl;
+    cout << Theme::INFO << "  MaxHeap: " << Theme::DATA << DEFAULT_MAX_HEAP_CAP 
+         << Theme::INFO << " (best selling products)" << RESET << endl;
+    cout << Theme::INFO << "  HashMap: " << Theme::DATA << DEFAULT_HASHMAP_CAP 
+         << Theme::INFO << " (auto-resizes dynamically)" << RESET << endl;
 
     WarehouseSystem warehouse(DEFAULT_MIN_HEAP_CAP, DEFAULT_MAX_HEAP_CAP, DEFAULT_HASHMAP_CAP);
 
-    cout << "\nWarehouse system initialized successfully!" << endl;
+    cout << "\n" << Theme::SUCCESS << "Warehouse system initialized successfully!" << RESET << endl;
 
     int choice;
     bool running = true;
@@ -227,7 +238,7 @@ int main()
             break;
 
         case 5:
-            cout << "\n--- All Products ---" << endl;
+            cout << "\n" << Theme::HEADER << "--- All Products ---" << RESET << endl;
             warehouse.displayAllProducts();
             break;
 
@@ -236,38 +247,38 @@ int main()
             break;
 
         case 7:
-            cout << "\n--- Process Next Order ---" << endl;
+            cout << "\n" << Theme::HEADER << "--- Process Next Order ---" << RESET << endl;
             warehouse.processNextOrder();
             break;
 
         case 8:
-            cout << "\n--- Pending Orders ---" << endl;
+            cout << "\n" << Theme::HEADER << "--- Pending Orders ---" << RESET << endl;
             warehouse.printOrders();
             break;
 
         case 9:
-            cout << "\n--- Lowest Selling Products ---" << endl;
+            cout << "\n" << Theme::HEADER << "--- Lowest Selling Products ---" << RESET << endl;
             warehouse.printLowSellingHeap();
             break;
 
         case 10:
-            cout << "\n--- Best Selling Products ---" << endl;
+            cout << "\n" << Theme::HEADER << "--- Best Selling Products ---" << RESET << endl;
             warehouse.printBestSellingHeap();
             break;
 
         case 11:
-            cout << "\nThank you for using Warehouse Management System!" << endl;
+            cout << "\n" << Theme::SUCCESS << "Thank you for using Warehouse Management System!" << RESET << endl;
             running = false;
             break;
 
         default:
-            cout << "\nInvalid choice! Please enter a number between 1-11." << endl;
+            cout << "\n" << Theme::ERR << "Invalid choice! Please enter a number between 1-11." << RESET << endl;
             break;
         }
 
         if (running)
         {
-            cout << "\nPress Enter to continue...";
+            cout << "\n" << Theme::PROMPT << "Press Enter to continue..." << RESET;
             cin.ignore();
             cin.get();
         }
